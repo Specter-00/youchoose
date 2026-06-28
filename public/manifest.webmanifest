@@ -1,0 +1,14 @@
+{
+  "name": "YOU CHOOSE — 自己分析スワイプ診断",
+  "short_name": "YOU CHOOSE",
+  "description": "好き嫌いをスワイプして本当の自分を見つける自己分析アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#18181f",
+  "theme_color": "#18181f",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
