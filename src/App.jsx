@@ -166,7 +166,8 @@ const IS_MOBILE = typeof window!=="undefined" && window.innerWidth<=430;
 const S = {
   outer:  IS_MOBILE?{display:"flex",flexDirection:"column",minHeight:"100vh",background:T.bg}:{display:"flex",justifyContent:"center",alignItems:"flex-start",minHeight:"100vh",background:"#0f0f13",padding:"14px 0"},
   frame:  IS_MOBILE?{width:"100%",flex:1,display:"flex",flexDirection:"column",background:T.bg,position:"relative",overflow:"hidden"}:{width:375,height:812,borderRadius:44,overflow:"hidden",position:"relative",background:T.bg,border:"1px solid rgba(255,255,255,0.07)",boxShadow:"0 0 0 6px #0a0a0d,0 28px 72px rgba(0,0,0,0.88)",flexShrink:0},
-  screen: {width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif",position:"relative",overflow:"hidden"},
+  screen: {width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif",position:"relative",overflow:"hidden",
+    ...(IS_MOBILE?{paddingTop:"env(safe-area-inset-top)",paddingBottom:"env(safe-area-inset-bottom)",boxSizing:"border-box"}:{})},
 };
 
 // ═══════════════════════════════════════════════════════
@@ -449,7 +450,7 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
 
       {/* ── サブカテゴリーグリッド（大カテゴリー選択後）── */}
       {bigCat&&(
-        <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,justifyContent:"center"}}>
           {/* 大カテゴリーヘッダー */}
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10,flexShrink:0}}>
             <button onClick={()=>setBigCat(null)} style={{...glass({borderRadius:"50%"}),width:30,height:30,color:T.textSec,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",WebkitTapHighlightColor:"transparent",flexShrink:0}}>←</button>
@@ -457,7 +458,7 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
             <span style={{color:T.textPri,fontSize:13,fontWeight:800,flex:1}}>{BIG_CATS[bigCat].name}</span>
           </div>
           {/* 2列×3行グリッド */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"repeat(3,1fr)",gap:9,flex:1,minHeight:0}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridAutoRows:"1fr",gap:11,maxHeight:"70vh",aspectRatio:"2/2.6",margin:"0 auto",width:"100%"}}>
             {activeCatKeys.map(k=>{
               const v=CATS[k],done=!!history[k];
               const preview=v.cards.slice(0,3).map(c=>c.e).join("  ");
@@ -587,7 +588,7 @@ function SwipeScreen({catKey,user,quick,onBack,onFinish}) {
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative",background:T.bg}}>
       <div style={{position:"absolute",inset:0,background:bgTint,pointerEvents:"none",zIndex:1,transition:"background 0.07s"}}/>
       <BgOrbs/>
-      <div style={{position:"relative",zIndex:10,display:"flex",alignItems:"center",gap:12,padding:"52px 22px 0",flexShrink:0}}>
+      <div style={{position:"relative",zIndex:10,display:"flex",alignItems:"center",gap:12,padding:"18px 22px 0",flexShrink:0}}>
         <BackBtn onPress={onBack}/>
         <span style={{color:T.textSec,fontSize:12,fontWeight:700,flex:1,letterSpacing:0.5}}>{cat.icon} {cat.name}</span>
         <span style={{color:remaining<=3?T.scarletBrt:T.textMute,fontSize:11,fontWeight:remaining<=3?800:400}}>残り{remaining}枚</span>
@@ -1493,9 +1494,39 @@ export default function App() {
     setScreen(s&&s.user&&s.user.name ? "home" : "onboard");
   };
 
+  // 画面ごとの「戻る先」。null は戻れない（または専用処理）
+  const goBack=()=>{
+    switch(screen){
+      case "intro":   setScreen("home"); break;
+      case "result":  setScreen("home"); break;
+      case "summary": setScreen("home"); break;
+      case "es":      setScreen("summary"); break;
+      // swipe（チョイス中）・splash・onboard・home は右スワイプ戻り無効
+      default: break;
+    }
+  };
+
+  // 右スワイプで戻る（チョイス中=swipe は除外）
+  const edgeX=useRef(0), edgeY=useRef(0), edgeActive=useRef(false);
+  const SWIPE_DISABLED = screen==="swipe" || screen==="splash" || screen==="onboard" || screen==="home";
+  const onTouchStartEdge=e=>{
+    if(SWIPE_DISABLED){edgeActive.current=false;return;}
+    edgeX.current=e.touches[0].clientX;
+    edgeY.current=e.touches[0].clientY;
+    edgeActive.current=true;
+  };
+  const onTouchEndEdge=e=>{
+    if(!edgeActive.current)return;
+    edgeActive.current=false;
+    const dx=e.changedTouches[0].clientX-edgeX.current;
+    const dy=e.changedTouches[0].clientY-edgeY.current;
+    // 横移動が十分大きく、縦移動が小さい右スワイプ
+    if(dx>70 && Math.abs(dy)<60) goBack();
+  };
+
   return (
     <div style={S.outer}>
-      <div style={S.frame}>
+      <div style={S.frame} onTouchStart={onTouchStartEdge} onTouchEnd={onTouchEndEdge}>
         <div style={S.screen}>
           {screen==="splash"   && <SplashScreen onDone={afterSplash}/>}
           {screen==="onboard"  && <OnboardScreen onDone={(n,m,md)=>{setUser({name:n,mbti:m,mode:md});setScreen("home");}}/>}
