@@ -1443,6 +1443,13 @@ export default function App() {
   const [restored,setRestored]=useState(false); // 復元済みデータがあるか
   const hydrated=useRef(false);
 
+  // 画面遷移を Google Analytics に送信（SPA仮想ページビュー）
+  useEffect(()=>{
+    if(typeof window!=="undefined" && typeof window.gtag==="function"){
+      window.gtag("event","screen_view",{screen_name:screen,page_path:"/"+screen});
+    }
+  },[screen]);
+
   // ① 起動時に localStorage から復元
   useEffect(()=>{
     const s=loadStore();
