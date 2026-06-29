@@ -163,12 +163,15 @@ const getCards = (catKey, quick) => {
 };
 
 const IS_MOBILE = typeof window!=="undefined" && window.innerWidth<=430;
-// スマホで片手操作しやすいよう重心を下げるオフセット
-const MOBILE_LOWER = IS_MOBILE ? "8vh" : 0;
+// 100dvh = iOSアドレスバーを除いた実表示高さ（vhより正確）
 const S = {
-  outer:  IS_MOBILE?{display:"flex",flexDirection:"column",minHeight:"100vh",background:T.bg}:{display:"flex",justifyContent:"center",alignItems:"flex-start",minHeight:"100vh",background:"#0f0f13",padding:"14px 0"},
-  frame:  IS_MOBILE?{width:"100%",flex:1,display:"flex",flexDirection:"column",background:T.bg,position:"relative",overflow:"hidden"}:{width:375,height:812,borderRadius:44,overflow:"hidden",position:"relative",background:T.bg,border:"1px solid rgba(255,255,255,0.07)",boxShadow:"0 0 0 6px #0a0a0d,0 28px 72px rgba(0,0,0,0.88)",flexShrink:0},
-  screen: {width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif",position:"relative",overflow:"hidden",
+  outer:  IS_MOBILE
+    ? {display:"flex",flexDirection:"column",height:"100dvh",minHeight:"100dvh",background:T.bg,overflow:"hidden"}
+    : {display:"flex",justifyContent:"center",alignItems:"flex-start",minHeight:"100vh",background:"#0f0f13",padding:"14px 0"},
+  frame:  IS_MOBILE
+    ? {width:"100%",flex:1,display:"flex",flexDirection:"column",background:T.bg,position:"relative",overflow:"hidden",minHeight:0}
+    : {width:375,height:812,borderRadius:44,overflow:"hidden",position:"relative",background:T.bg,border:"1px solid rgba(255,255,255,0.07)",boxShadow:"0 0 0 6px #0a0a0d,0 28px 72px rgba(0,0,0,0.88)",flexShrink:0},
+  screen: {width:"100%",flex:1,minHeight:0,display:"flex",flexDirection:"column",fontFamily:"-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif",position:"relative",overflow:"hidden",
     ...(IS_MOBILE?{paddingTop:"env(safe-area-inset-top)",paddingBottom:"env(safe-area-inset-bottom)",boxSizing:"border-box"}:{})},
 };
 
@@ -273,7 +276,7 @@ function OnboardScreen({onDone}) {
   ];
 
   return (
-    <div style={{flex:1,display:"flex",flexDirection:"column",padding:"0 20px",paddingBottom:MOBILE_LOWER,justifyContent:"center",position:"relative",zIndex:1,overflow:"hidden",gap:0}}>
+    <div style={{flex:1,display:"flex",flexDirection:"column",padding:"0 20px",justifyContent:"center",position:"relative",zIndex:1,overflow:"hidden",gap:0}}>
       <BgOrbs/>
 
       {/* ロゴ */}
@@ -394,7 +397,7 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
 
       {/* ── 大カテゴリー選択（未選択時）── */}
       {!bigCat&&(
-        <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:12,paddingBottom:MOBILE_LOWER}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:12}}>
           <div style={{color:T.textMute,fontSize:10,textAlign:"center",letterSpacing:1,marginBottom:4}}>どちらから始めますか？</div>
           {Object.entries(BIG_CATS).map(([k,v])=>{
             const done=k==="like"?doneLike:doneSelf;
@@ -437,7 +440,7 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
 
       {/* ── サブカテゴリーグリッド（大カテゴリー選択後）── */}
       {bigCat&&(
-        <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,justifyContent:"center",paddingBottom:MOBILE_LOWER}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,justifyContent:"center"}}>
           {/* 大カテゴリーヘッダー */}
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10,flexShrink:0}}>
             <button onClick={()=>setBigCat(null)} style={{...glass({borderRadius:"50%"}),width:30,height:30,color:T.textSec,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",WebkitTapHighlightColor:"transparent",flexShrink:0}}>←</button>
