@@ -163,6 +163,8 @@ const getCards = (catKey, quick) => {
 };
 
 const IS_MOBILE = typeof window!=="undefined" && window.innerWidth<=430;
+// スマホで片手操作しやすいよう重心を下げるオフセット
+const MOBILE_LOWER = IS_MOBILE ? "8vh" : 0;
 const S = {
   outer:  IS_MOBILE?{display:"flex",flexDirection:"column",minHeight:"100vh",background:T.bg}:{display:"flex",justifyContent:"center",alignItems:"flex-start",minHeight:"100vh",background:"#0f0f13",padding:"14px 0"},
   frame:  IS_MOBILE?{width:"100%",flex:1,display:"flex",flexDirection:"column",background:T.bg,position:"relative",overflow:"hidden"}:{width:375,height:812,borderRadius:44,overflow:"hidden",position:"relative",background:T.bg,border:"1px solid rgba(255,255,255,0.07)",boxShadow:"0 0 0 6px #0a0a0d,0 28px 72px rgba(0,0,0,0.88)",flexShrink:0},
@@ -271,7 +273,7 @@ function OnboardScreen({onDone}) {
   ];
 
   return (
-    <div style={{flex:1,display:"flex",flexDirection:"column",padding:"0 20px",justifyContent:"center",position:"relative",zIndex:1,overflow:"hidden",gap:0}}>
+    <div style={{flex:1,display:"flex",flexDirection:"column",padding:"0 20px",paddingBottom:MOBILE_LOWER,justifyContent:"center",position:"relative",zIndex:1,overflow:"hidden",gap:0}}>
       <BgOrbs/>
 
       {/* ロゴ */}
@@ -392,7 +394,7 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
 
       {/* ── 大カテゴリー選択（未選択時）── */}
       {!bigCat&&(
-        <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:12}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:12,paddingBottom:MOBILE_LOWER}}>
           <div style={{color:T.textMute,fontSize:10,textAlign:"center",letterSpacing:1,marginBottom:4}}>どちらから始めますか？</div>
           {Object.entries(BIG_CATS).map(([k,v])=>{
             const done=k==="like"?doneLike:doneSelf;
@@ -435,7 +437,7 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
 
       {/* ── サブカテゴリーグリッド（大カテゴリー選択後）── */}
       {bigCat&&(
-        <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,justifyContent:"center"}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,justifyContent:"center",paddingBottom:MOBILE_LOWER}}>
           {/* 大カテゴリーヘッダー */}
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10,flexShrink:0}}>
             <button onClick={()=>setBigCat(null)} style={{...glass({borderRadius:"50%"}),width:30,height:30,color:T.textSec,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",WebkitTapHighlightColor:"transparent",flexShrink:0}}>←</button>
@@ -531,6 +533,7 @@ function IntroScreen({catKey,user,history,quick,onConfirm,onBack}) {
       <div style={{background:T.scarletFade,border:"1px solid rgba(214,58,31,0.2)",borderRadius:11,padding:"10px 13px",marginBottom:16,flexShrink:0}}>
         <div style={{color:"rgba(245,175,155,0.9)",fontSize:11,lineHeight:1.6}}><span style={{fontWeight:800,color:T.scarletBrt}}>ポイント：</span>曖昧な気持ちは「嫌い」へ。本当に心が動いた「好き」だけを選び取りましょう。</div>
       </div>
+      <div style={{flex:1,minHeight:8}}/>
       <PrimaryBtn onClick={onConfirm}>診断スタート →</PrimaryBtn>
     </div>
   );
