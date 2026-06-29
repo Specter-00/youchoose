@@ -359,7 +359,6 @@ function OnboardScreen({onDone}) {
 function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,onReset}) {
   const [picker,setPicker]=useState(null); // 診断済みカードタップ時の選択メニュー catKey
   const [bigCat,setBigCat]=useState(null); // null | 'like' | 'self'
-  const [menuOpen,setMenuOpen]=useState(false);
   const doneCount=Object.keys(history).length;
   const allDone=doneCount===CAT_KEYS.length;
   const canSummary=doneCount>=1; // ② 1カテゴリーでも暫定総合OK
@@ -370,7 +369,7 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
 
   return (
     <div style={{flex:1,display:"flex",flexDirection:"column",padding:"14px 16px 12px",overflow:"hidden",position:"relative",zIndex:1}}>
-      <BgOrbs/><Logo/>
+      <BgOrbs/>
 
       {/* ユーザーバー */}
       <div style={{...glass({borderRadius:12,padding:"8px 12px"}),display:"flex",alignItems:"center",gap:9,marginBottom:10,flexShrink:0,paddingRight:56}}>
@@ -385,37 +384,11 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
           </div>
         </div>
         {canSummary&&<button onClick={onSummary} style={{background:`linear-gradient(135deg,${T.scarlet},#8a2010)`,border:"none",borderRadius:9,padding:"5px 10px",color:"#fff",fontSize:10,fontWeight:800,cursor:"pointer",WebkitTapHighlightColor:"transparent",flexShrink:0,boxShadow:`0 2px 10px ${T.scarletGlow}`}}>{allDone?"総合 ✦":"暫定 ✦"}</button>}
-        <button onClick={()=>setMenuOpen(o=>!o)} style={{...glass({borderRadius:8}),width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",color:T.textMute,fontSize:14,cursor:"pointer",WebkitTapHighlightColor:"transparent",flexShrink:0,padding:0}}>⋯</button>
+        <button onClick={()=>{if(window.confirm("診断データをすべて削除して最初からやり直しますか？")){onReset();}}} style={{...glass({borderRadius:8}),width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",color:T.textMute,fontSize:13,cursor:"pointer",WebkitTapHighlightColor:"transparent",flexShrink:0,padding:0}}>🗑️</button>
       </div>
 
       {/* 進捗バー */}
       {doneCount>0&&<div style={{height:2,background:"rgba(255,255,255,0.06)",borderRadius:1,marginBottom:10,flexShrink:0}}><div style={{height:"100%",background:`linear-gradient(90deg,${T.scarlet},${T.scarletBrt})`,borderRadius:1,width:((doneCount/CAT_KEYS.length)*100)+"%",transition:"width 0.4s ease"}}/></div>}
-
-      {/* ⋯メニュー（リセット） */}
-      {menuOpen&&(
-        <div style={{...glass({borderRadius:12,padding:"6px"}),marginBottom:10,flexShrink:0,boxShadow:"0 8px 28px rgba(0,0,0,0.4)"}}>
-          <button onClick={()=>{setMenuOpen(false);if(window.confirm("診断データをすべて削除して最初からやり直しますか？")){onReset();}}}
-            style={{width:"100%",background:"none",border:"none",padding:"10px 12px",color:"rgba(255,140,120,0.9)",fontSize:12,fontWeight:600,cursor:"pointer",textAlign:"left",WebkitTapHighlightColor:"transparent",display:"flex",alignItems:"center",gap:8}}>
-            🗑️ データをリセットして最初から
-          </button>
-        </div>
-      )}
-
-      {/* ② クイック診断トグル */}
-      {!bigCat&&(
-        <div style={{...glass({borderRadius:12,padding:"10px 14px"}),display:"flex",alignItems:"center",gap:10,marginBottom:12,flexShrink:0}}>
-          <span style={{fontSize:16}}>{quick?"⚡":"🃏"}</span>
-          <div style={{flex:1}}>
-            <div style={{color:T.textPri,fontSize:12,fontWeight:700}}>{quick?"クイック診断":"じっくり診断"}</div>
-            <div style={{color:T.textMute,fontSize:9,marginTop:1}}>{quick?"各カテゴリー5枚・サクッと":"各カテゴリー10枚・しっかり"}</div>
-          </div>
-          {/* トグルスイッチ */}
-          <button onClick={()=>setQuick(q=>!q)}
-            style={{width:46,height:26,borderRadius:13,border:"none",cursor:"pointer",WebkitTapHighlightColor:"transparent",position:"relative",background:quick?`linear-gradient(135deg,${T.scarletBrt},${T.scarlet})`:"rgba(255,255,255,0.12)",transition:"background 0.2s",flexShrink:0,padding:0}}>
-            <div style={{position:"absolute",top:3,left:quick?23:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left 0.2s cubic-bezier(0.34,1.56,0.64,1)",boxShadow:"0 2px 6px rgba(0,0,0,0.3)"}}/>
-          </button>
-        </div>
-      )}
 
       {/* ── 大カテゴリー選択（未選択時）── */}
       {!bigCat&&(
@@ -444,6 +417,18 @@ function HomeScreen({user,history,quick,setQuick,onStart,onViewPast,onSummary,on
               </button>
             );
           })}
+          {/* ② クイック診断トグル（中央寄せ・大カテゴリーの下） */}
+          <div style={{...glass({borderRadius:12,padding:"10px 14px"}),display:"flex",alignItems:"center",gap:10,marginTop:4}}>
+            <span style={{fontSize:16}}>{quick?"⚡":"🃏"}</span>
+            <div style={{flex:1}}>
+              <div style={{color:T.textPri,fontSize:12,fontWeight:700}}>{quick?"クイック診断":"じっくり診断"}</div>
+              <div style={{color:T.textMute,fontSize:9,marginTop:1}}>{quick?"各カテゴリー5枚・サクッと":"各カテゴリー10枚・しっかり"}</div>
+            </div>
+            <button onClick={()=>setQuick(q=>!q)}
+              style={{width:46,height:26,borderRadius:13,border:"none",cursor:"pointer",WebkitTapHighlightColor:"transparent",position:"relative",background:quick?`linear-gradient(135deg,${T.scarletBrt},${T.scarlet})`:"rgba(255,255,255,0.12)",transition:"background 0.2s",flexShrink:0,padding:0}}>
+              <div style={{position:"absolute",top:3,left:quick?23:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left 0.2s cubic-bezier(0.34,1.56,0.64,1)",boxShadow:"0 2px 6px rgba(0,0,0,0.3)"}}/>
+            </button>
+          </div>
           <div style={{color:T.textMute,fontSize:9,textAlign:"center",marginTop:4,letterSpacing:0.5}}>好きか嫌いか、直感で選ぼう</div>
         </div>
       )}
@@ -1174,7 +1159,7 @@ function ResultScreen({catKey,user,likes,nopes,diagnosedAt,onRetry,onNext,nextCa
         <div style={{color:"rgba(244,239,233,0.25)",fontSize:9,marginTop:2,letterSpacing:0.5}}>📅 {dateStr}</div>
       </div>
 
-      <div style={{flex:1,overflowY:"auto",WebkitOverflowScrolling:"touch",display:"flex",flexDirection:"column",gap:9,minHeight:0}}>
+      <div style={{flex:1,overflowY:"auto",WebkitOverflowScrolling:"touch",touchAction:"pan-y",display:"flex",flexDirection:"column",gap:9,minHeight:0}}>
 
         {/* ① 強みワード */}
         <div style={{...glass({borderRadius:14,padding:"12px 14px"}),flexShrink:0}}>
@@ -1308,7 +1293,7 @@ function SummaryScreen({user,history,onHome,onES}) {
         <div style={{color:T.textPri,fontSize:17,fontWeight:800,letterSpacing:1.2}}>総合診断</div>
         <div style={{color:T.textMute,fontSize:10,marginTop:3}}>{user.name}さん · {totalDone}/{CAT_KEYS.length}カテゴリー{totalDone<CAT_KEYS.length?"（暫定）":"完了"}{user.mbti&&` · ${user.mbti}`}</div>
       </div>
-      <div style={{flex:1,overflowY:"auto",WebkitOverflowScrolling:"touch",display:"flex",flexDirection:"column",gap:9,minHeight:0}}>
+      <div style={{flex:1,overflowY:"auto",WebkitOverflowScrolling:"touch",touchAction:"pan-y",display:"flex",flexDirection:"column",gap:9,minHeight:0}}>
         <div style={{background:"rgba(214,58,31,0.08)",border:"1px solid rgba(214,58,31,0.22)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderRadius:18,padding:"14px 16px",flexShrink:0}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:9}}>
             <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:14}}>✦</span><span style={{color:T.scarletBrt,fontSize:11,fontWeight:800,letterSpacing:0.8}}>あなたの総合結果</span></div>
@@ -1415,7 +1400,7 @@ function ESScreen({user,history,onBack}) {
           {copied?"✓ コピー済":"📋 全コピー"}
         </button>
       </div>
-      <div style={{flex:1,overflowY:"auto",WebkitOverflowScrolling:"touch",display:"flex",flexDirection:"column",gap:10,minHeight:0}}>
+      <div style={{flex:1,overflowY:"auto",WebkitOverflowScrolling:"touch",touchAction:"pan-y",display:"flex",flexDirection:"column",gap:10,minHeight:0}}>
         {load
           ?<div style={{...glass({borderRadius:16,padding:"24px"}),display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
             <div style={{display:"flex",gap:4}}>{[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:"50%",background:T.scarlet,animation:`ycp 1.3s ease-in-out ${i*0.22}s infinite`}}/>)}</div>
